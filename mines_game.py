@@ -1,5 +1,6 @@
 # Modules
 import random
+import math
 import customtkinter as ctk
 from PIL import Image
 
@@ -16,6 +17,8 @@ app = ctk.CTk()
 grid = []
 
 def generate_grid():
+
+    grid.clear()
 
     for i in range(grid_size):
         grid.append("💎")
@@ -141,7 +144,35 @@ def topbar_init():
     title = ctk.CTkLabel(topbar, width=100, height=25, text="Casino Mines Game")
     title.pack(side="left", padx=0, pady=5)
 
+def grid_size_selector(new_grid_size):
+    global grid_multiplier, grid_size
+
+    new_grid_size = int(new_grid_size)
+    grid_multiplier = int(math.sqrt(new_grid_size))
+    grid_size = new_grid_size
+
+    for widget in app.winfo_children():
+        if isinstance(widget, ctk.CTkButton):
+            widget.destroy()
+
+    generate_grid()
+    generate_ui_grid()
+    print_grid()
+
 def manager_init():
+    #Current Balance
+
+    balance_frame = ctk.CTkFrame(manager, fg_color="transparent")
+    balance_frame.pack(padx=15, pady=15, fill="x")
+
+    balance_title_label = ctk.CTkLabel(balance_frame, text="Current Balance", anchor="w")
+    balance_title_label.pack(side="top", anchor="w")
+
+    balance_label = ctk.CTkLabel(balance_frame, text="$1000.00", anchor="w", font=ctk.CTkFont(size=25,weight="bold"))
+    balance_label.pack(side="top", anchor="w")
+
+    #Bet amount entry
+
     input_frame = ctk.CTkFrame(manager, fg_color="transparent")
     input_frame.pack(padx=15, pady=15, fill="x")
 
@@ -150,7 +181,9 @@ def manager_init():
 
     bet_input = ctk.CTkEntry(input_frame, placeholder_text="$0.00")
     bet_input.pack(side="top", fill="x", pady=(5,0))
- 
+    
+    #Grid size 
+
     grid_frame = ctk.CTkFrame(manager, fg_color="transparent")
     grid_frame.pack(padx=15, pady=15, fill="x")
 
@@ -158,13 +191,36 @@ def manager_init():
     grid_label.pack(side="top", anchor="w")
 
     grid_options = ["25", "36", "49", "64"]
-    segmented_button = ctk.CTkSegmentedButton(
-        grid_frame,
-        values=grid_options,
-        command=lambda value: print("Selected Grid Size:", value)
-    )
+    segmented_button = ctk.CTkSegmentedButton(grid_frame, values=grid_options, command=lambda value: grid_size_selector(value))
     segmented_button.set("25")
     segmented_button.pack(side="top", fill="x", pady=(5,0))
+
+    # Mines selector
+
+    mines_selector_frame = ctk.CTkFrame(manager, fg_color="transparent")
+    mines_selector_frame.pack(padx=15, pady=15, fill="x")
+
+    grid_label = ctk.CTkLabel(mines_selector_frame, text="Number of Mines", anchor="w")
+    grid_label.pack(side="top", anchor="w")
+
+    def on_mines_slider_change(value):
+        value = round(value)
+        mines_slider.set(value)
+        print(int(value))
+
+    mines_slider = ctk.CTkSlider(mines_selector_frame, from_=1, to=(grid_size - 1), command=on_mines_slider_change)
+
+    mines_slider.configure(number_of_steps=(grid_size - 2))
+    mines_slider.pack(side="top", fill="x", pady=(5, 0))
+
+    # Bet Button
+
+    bet_button_frame = ctk.CTkFrame(manager, fg_color="transparent")
+    bet_button_frame.pack(padx=15, pady=15, fill="x")
+
+    bet_button = ctk.CTkButton(bet_button_frame, text="Bet", fg_color="#7734eb", hover_color="#9264e3", height=35)
+    bet_button.pack(side="top", fill="x", pady=(5, 0))
+
 
 # Run
 
