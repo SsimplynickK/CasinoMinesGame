@@ -1,9 +1,34 @@
 import random
 import json
+import os
 
-class balance():
+class Balance:
     def __init__(self):
-        self.balance_save = open("player_save.json")
+        self.file_path = "player_save.json"
+
+        if not os.path.exists(self.file_path) or os.path.getsize(self.file_path) == 0:
+            self.balance = 100
+            self.save_balance()
+        else:
+            try:
+                with open(self.file_path, "r") as f:
+                    data = json.load(f)
+                    self.balance = data.get("balance", 100)
+            except:
+                self.balance = 100
+                self.save_balance()
+
+    def fetch_balance(self):
+        return self.balance
+
+    def change_balance(self, new_balance):
+        self.balance = new_balance
+        self.save_balance()
+
+    def save_balance(self):
+        with open(self.file_path, "w") as f:
+            json.dump({"balance": self.balance}, f, indent=4)
+
 
 class mines_game():
     def __init__(self):
